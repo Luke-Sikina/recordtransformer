@@ -8,7 +8,7 @@ public class Example {
      * - queue a series of mutations
      * - create a new state object that merges that list of mutations with the current state
      */
-    public static void main(String[] args) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+    public static void main(String[] args) throws InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
         ExampleRecord first = new ExampleRecord(1, "foo", 5f);
         TransformableRecordWrapper<ExampleRecord> transformer = new TransformableRecordWrapper<>(first);
 
