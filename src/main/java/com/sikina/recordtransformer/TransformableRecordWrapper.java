@@ -15,9 +15,6 @@ public class TransformableRecordWrapper<T extends Record> {
     private final Map<String, Object> updates = new HashMap<>();
 
     public TransformableRecordWrapper(T instance) throws NoSuchMethodException {
-        // I made a ton of assumptions that only hold true for records
-        assert instance.getClass().isRecord();
-
         this.instance = instance;
         Map<String, Type> constructorParams =
             Arrays.stream(canonicalConstructorOfRecord(instance.getClass()).getParameters())
