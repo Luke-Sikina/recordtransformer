@@ -13,21 +13,21 @@ public class Example {
         TransformableRecordWrapper<ExampleRecord> transformer = new TransformableRecordWrapper<>(first);
 
         ExampleRecord second = transformer
-            .with("a", 2)
-            .with("b", "bar")
+            .with(transformer.instance()::a, 2)
+            .with(transformer.instance()::b, "bar")
+            .with(transformer.instance()::c, 1f)
             .transform()
             .instance();
         assert second.a() == 2;
         assert second.b().equals("bar");
-        assert second.c() == first.c();
+        assert second.c() == 1f;
 
         ExampleRecord third = transformer
-            .with("a", 3)
+            .with(transformer.instance()::a, 3)
             .transform()
             .instance();
         assert third.a() == 3;
         assert third.b().equals(second.b());
-        assert third.c() == first.c();
         assert third.c() == second.c();
 
         System.out.println(":)");

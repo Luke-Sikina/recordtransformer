@@ -1,5 +1,7 @@
 package com.sikina.recordtransformer;
 
+import com.github.hervian.reflection.Fun;
+
 import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,9 +44,8 @@ public class TransformableRecordWrapper<T extends Record> {
         };
     }
 
-    // TODO: how can I make this type safe?
-    public TransformableRecordWrapper<T> with(String key, Object value) {
-        updates.put(key, value);
+    public <V> TransformableRecordWrapper<T> with(Fun.With0ParamsAndVoid<V> getter, V value) {
+        updates.put(Fun.toMethod(getter).getName(), value);
         return this;
     }
 
