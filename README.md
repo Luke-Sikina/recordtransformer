@@ -22,7 +22,5 @@ This rough demo allows you to:
 **Use**: see `Example.java`
 
 ## Problems
-This isn't thread safe:
-```java
-transformer.with(key, value)
+I don't understand how the magic library gets the method name from an anonymous method.
 ```
