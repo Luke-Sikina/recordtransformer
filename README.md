@@ -18,9 +18,8 @@ This rough demo allows you to:
 ## Usage
 
 **Build**: `mvn clean install`  
-**Run**: `java -classpath target/funky-1.0-SNAPSHOT-jar-with-dependencies.jar com.sikina.recordtransformer.Example`  
+**Run**: `java -classpath target/funky-1.0-SNAPSHOT.jar com.sikina.recordtransformer.Example`  
 **Use**: see `Example.java`
 
-## Problems
-I don't understand how the magic library gets the method name from an anonymous method.
-```
+## References
+I borrowed some cool serialization logic from here: https://github.com/Hervian/safety-mirror

@@ -1,7 +1,6 @@
 package com.sikina.recordtransformer;
 
-import com.github.hervian.reflection.Fun;
-
+import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -41,9 +40,16 @@ public class TransformableRecordWrapper<T extends Record> {
         };
     }
 
-    public <V> TransformableRecordWrapper<T> with(Fun.With0ParamsAndVoid<V> getter, V value) {
-        updates.put(Fun.toMethod(getter).getName(), value);
-        return this;
+    public <V> TransformableRecordWrapper<T> with(Accessor<V> getter, V value) throws GetterMappingException {
+        try {
+            Method m = getter.getClass().getDeclaredMethod("writeReplace");
+            m.setAccessible(true);
+            SerializedLambda replacement = (SerializedLambda) m.invoke(getter);
+            updates.put(replacement.getImplMethodName(), value);
+            return this;
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new GetterMappingException(e);
+        }
     }
 
     public TransformableRecordWrapper<T> transform() throws InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
