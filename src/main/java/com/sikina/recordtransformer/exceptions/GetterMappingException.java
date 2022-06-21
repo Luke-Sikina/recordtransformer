@@ -1,4 +1,4 @@
-package com.sikina.recordtransformer;
+package com.sikina.recordtransformer.exceptions;
 
 public class GetterMappingException extends RuntimeException {
     public GetterMappingException(Throwable cause) {

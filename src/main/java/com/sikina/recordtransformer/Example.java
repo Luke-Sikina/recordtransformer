@@ -13,7 +13,7 @@ public class Example {
         TransformableRecordWrapper<ExampleRecord> transformer = new TransformableRecordWrapper<>(first);
 
         ExampleRecord second = transformer
-            .with(transformer.instance()::a, 2)
+            .withTypeUnsafe("a", 2)
             .with(transformer.instance()::b, "bar")
             .with(transformer.instance()::c, 1f)
             .transform()
