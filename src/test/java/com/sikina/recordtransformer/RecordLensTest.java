@@ -1,6 +1,5 @@
 package com.sikina.recordtransformer;
 
-import com.sikina.recordtransformer.exceptions.GetterMappingException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import otherpackage.ForeignRecord;
@@ -42,6 +41,15 @@ class RecordLensTest {
         @Override
         public int hashCode() {
             return Objects.hash(s);
+        }
+    }
+
+    public record RecordWithConstructorThatSometimesExplodes(boolean explode){
+        public RecordWithConstructorThatSometimesExplodes(boolean explode) {
+            this.explode = explode;
+            if (explode) {
+                throw new RuntimeException();
+            }
         }
     }
 
@@ -167,6 +175,16 @@ class RecordLensTest {
     @Test
     void shouldExplode() {
         var t = new RecordLens<>(new ExplodingRecord(1, "foo"));
-        Assertions.assertThrows(GetterMappingException.class, t::transform);
+        Assertions.assertThrows(GetterException.class, t::transform);
+    }
+
+    @Test
+    void shouldExplodeOnTransform() {
+        // This is a really janky test. RecordWithConstructorThatSometimesExplodes will throw a RTE if
+        // set to true. We make the first record with it set to false, then transform to true
+        // to get the exception and verify that it is captured correctly.
+        var t = new RecordLens<>(new RecordWithConstructorThatSometimesExplodes(false));
+        t.with(t.rec()::explode).as(true);
+        Assertions.assertThrows(ConstructorException.class, t::transform);
     }
 }
