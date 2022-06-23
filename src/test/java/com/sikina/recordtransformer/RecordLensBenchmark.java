@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 @Warmup(iterations = 3)
 @Measurement(iterations = 8)
 public class RecordLensBenchmark {
-    public static final int I = 10;
+    private static final int ITERATIONS = 10;
     public record LargeRecord(int a, int b, int c, int d, int e, int f, int g, int h, int i, int j){}
 
     public static void main(String[] args) throws RunnerException {
@@ -30,7 +30,7 @@ public class RecordLensBenchmark {
     public void unsafeTransform() {
         LargeRecord start = new LargeRecord(1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
         RecordLens<LargeRecord> lens = new RecordLens<>(start);
-        for (int i = 0; i < I; i++) {
+        for (int i = 0; i < ITERATIONS; i++) {
             lens = lens
                 .withTypeUnsafe("a", i)
                 .withTypeUnsafe("b", i)
@@ -51,7 +51,7 @@ public class RecordLensBenchmark {
     public void safeTransform() {
         LargeRecord start = new LargeRecord(1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
         RecordLens<LargeRecord> lens = new RecordLens<>(start);
-        for (int i = 0; i < I; i++) {
+        for (int i = 0; i < ITERATIONS; i++) {
             lens = lens
                 .with(lens.rec()::a).as(i)
                 .with(lens.rec()::b).as(i)

@@ -1,8 +1,5 @@
 package com.sikina.recordtransformer;
 
-import com.sikina.recordtransformer.exceptions.ConstructorException;
-import com.sikina.recordtransformer.exceptions.GetterMappingException;
-
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.*;
 import java.util.Arrays;
@@ -12,11 +9,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * A wrapper that provides transformation functions to a record
- * via with / transform functions.
+ * A wrapper that provides an API for making transformations to an immutable record object.
+ *
  *
  * Note: the record you are wrapping must be accessible (public).
- * @param <T>
+ * @param <T> the type of the record being wrapped.
  */
 public class RecordLens<T extends Record> {
     private T rec;
@@ -28,9 +25,9 @@ public class RecordLens<T extends Record> {
      * expensive, so avoid duplicate wrapping if you can.
      *
      * @param rec the record to transform
-     * @throws GetterMappingException thrown if the wrapper can't get record components from rec
+     * @throws GetterException thrown if the wrapper can't get record components from rec
      */
-    public RecordLens(T rec) throws GetterMappingException {
+    public RecordLens(T rec) throws GetterException {
         this.rec = rec;
         // create a list of getters that accept a T and produce the relevant field value
         // these are used to get old values in transform
@@ -47,7 +44,7 @@ public class RecordLens<T extends Record> {
             try {
                 return m.invoke(referenceRecord);
             } catch (ReflectiveOperationException e) {
-                throw new GetterMappingException(e);
+                throw new GetterException(e);
             }
         };
     }
@@ -63,15 +60,15 @@ public class RecordLens<T extends Record> {
      * Lazily changes the field referenced by the getter to the new value.
      * This value change will not be reflected in rec() until you call transform().
      *
-     * This process happens in two steps - with(keyFunc).as(newValue). This is the only
-     * way I can find to keep this type safe. If you instead do with(keyFunc, newValue),
-     * the compiler will find a common parent between the \<T\> in keyFunc and newValue.
+     * This process happens in two steps - @{code with(getter).as(newValue)} in order to make type
+     * checking work. If you call @{code with} without calling @{code as} afterwards, nothing will happen.
      *
      * @param getter A getter on record T - used to enforce type checking and reference the field being changed
-     * @return Transformation curried with this transformer and the key from this getter.
-     * @throws GetterMappingException if the getter cannot be transformed into a SerializableLambda
+     * @param <V> The type of the field being changed
+     * @return PartialTransformation curried with this lens and the key from this getter.
+     * @throws GetterException if the getter cannot be transformed into a SerializableLambda
      */
-    public <V> PartialTransformation<T, V> with(Accessor<? super V> getter) throws GetterMappingException {
+    public <V> PartialTransformation<T, V> with(Accessor<V> getter) throws GetterException {
         try {
             // From https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/invoke/LambdaMetafactory.html
             // When FLAG_SERIALIZABLE is set in flags, the function objects will implement Serializable,
@@ -81,7 +78,7 @@ public class RecordLens<T extends Record> {
             SerializedLambda replacement = (SerializedLambda) m.invoke(getter);
             return new PartialTransformation<>(this, updates::put, replacement.getImplMethodName());
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new GetterMappingException(e);
+            throw new GetterException(e);
         }
     }
 
@@ -103,6 +100,13 @@ public class RecordLens<T extends Record> {
         return this;
     }
 
+    /**
+     * Replace the underlying record with a new record with updates made to the fields previously
+     * specified with @{code with} and @{code withTypeUnsafe}.
+     * @return this, for chaining
+     * @throws ConstructorException thrown if a reflective error occurs while calling the record's
+     * canonical constructor. The mostly likely cause is a type mismatch for a field update.
+     */
     public RecordLens<T> transform() throws ConstructorException {
         // throws ConstructorException
         Constructor<?> constructor = canonicalConstructorOfRecord(rec.getClass());
@@ -111,6 +115,7 @@ public class RecordLens<T extends Record> {
             // get update if exists, else get old record value
             .map(p -> updates.getOrDefault(p, getValueFromCurrent(p)))
             .toArray();
+        updates.clear();
 
         try {
             rec = (T)constructor.newInstance(args);

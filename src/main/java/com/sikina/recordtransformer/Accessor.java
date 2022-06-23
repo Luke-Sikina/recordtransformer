@@ -3,10 +3,14 @@ package com.sikina.recordtransformer;
 import java.io.Serializable;
 
 /**
- * We make our own functional interface rather than using something like Invokable
- * because we need the interface to be serializable in order to parse the method name.
+ * This is a serializable getter. Extending Serializable allows us to retain information
+ * like the method name, which lets this serve as both type checking and a reference
+ * to a field in a record.
  */
 @FunctionalInterface
 public interface Accessor<V> extends Serializable {
-    public V get();
+    /**
+     * @return the value in the record that corresponds to this field
+     */
+    V get();
 }

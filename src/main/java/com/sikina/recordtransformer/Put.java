@@ -1,6 +1,10 @@
 package com.sikina.recordtransformer;
 
+/**
+ * Function interface used to pass Map::put to PartialTransformation
+ * Not for external use.
+ */
 @FunctionalInterface
-public interface Put {
-    public Object put(String key, Object value);
+interface Put {
+    Object put(String key, Object value);
 }
