@@ -12,11 +12,11 @@ package com.sikina.recordtransformer;
  * @param <V> the type of the field in T being updated
  */
 public class PartialTransformation<T extends Record, V> {
-    private final RecordLens<T> wrapper;
+    private final RecordTransformer<T> wrapper;
     private final Put putFunc;
     private final String key;
 
-    PartialTransformation(RecordLens<T> wrapper, Put putFunc, String key) {
+    PartialTransformation(RecordTransformer<T> wrapper, Put putFunc, String key) {
         this.wrapper = wrapper;
         this.putFunc = putFunc;
         this.key = key;
@@ -27,7 +27,7 @@ public class PartialTransformation<T extends Record, V> {
      * @param value the value to set the field to when transform is called.
      * @return The original lens, for chaining.
      */
-    public RecordLens<T> as(V value) {
+    public RecordTransformer<T> as(V value) {
         putFunc.put(key, value);
         return wrapper;
     }

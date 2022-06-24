@@ -11,11 +11,10 @@ import java.util.stream.Collectors;
 /**
  * A wrapper that provides an API for making transformations to an immutable record object.
  *
- *
  * Note: the record you are wrapping must be accessible (public).
  * @param <T> the type of the record being wrapped.
  */
-public class RecordLens<T extends Record> {
+public class RecordTransformer<T extends Record> {
     private T rec;
     private final Map<String, Function<T, Object>> getters;
     private final Map<String, Object> updates = new HashMap<>();
@@ -27,7 +26,7 @@ public class RecordLens<T extends Record> {
      * @param rec the record to transform
      * @throws GetterException thrown if the wrapper can't get record components from rec
      */
-    public RecordLens(T rec) throws GetterException {
+    public RecordTransformer(T rec) throws GetterException {
         this.rec = rec;
         // create a list of getters that accept a T and produce the relevant field value
         // these are used to get old values in transform
@@ -95,7 +94,7 @@ public class RecordLens<T extends Record> {
      * @param value the value to change that field to
      * @return this, for chaining
      */
-    public RecordLens<T> withTypeUnsafe(String key, Object value) {
+    public RecordTransformer<T> withTypeUnsafe(String key, Object value) {
         updates.put(key, value);
         return this;
     }
@@ -107,7 +106,7 @@ public class RecordLens<T extends Record> {
      * @throws ConstructorException thrown if a reflective error occurs while calling the record's
      * canonical constructor. The mostly likely cause is a type mismatch for a field update.
      */
-    public RecordLens<T> transform() throws ConstructorException {
+    public RecordTransformer<T> transform() throws ConstructorException {
         // throws ConstructorException
         Constructor<?> constructor = canonicalConstructorOfRecord(rec.getClass());
         Object[] args = Arrays.stream(constructor.getParameters())

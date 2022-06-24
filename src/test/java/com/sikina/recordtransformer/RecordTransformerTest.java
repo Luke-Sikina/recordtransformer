@@ -6,7 +6,7 @@ import otherpackage.ForeignRecord;
 
 import java.util.Objects;
 
-class RecordLensTest {
+class RecordTransformerTest {
 
     public record ExampleRec(int a, String b){}
 
@@ -61,7 +61,7 @@ class RecordLensTest {
 
     @Test
     void shouldConstructObject() {
-        var t = new RecordLens<>(new ExampleRec(1, "foo"));
+        var t = new RecordTransformer<>(new ExampleRec(1, "foo"));
         Assertions.assertNotNull(t);
     }
 
@@ -69,25 +69,25 @@ class RecordLensTest {
     void shouldConstructForeignRecord() {
         // I thought records in another package could cause IllegalAccessExceptions.
         // This test is just verifying that they don't.
-        var t = new RecordLens<>(new ForeignRecord(1, "foo"));
+        var t = new RecordTransformer<>(new ForeignRecord(1, "foo"));
         Assertions.assertNotNull(t);
     }
 
     @Test
     void shouldConstructRecordThatHasNonCanonicalConstructor() {
-        var t = new RecordLens<>(new RecordWithNonCanonicalConstructor(true));
+        var t = new RecordTransformer<>(new RecordWithNonCanonicalConstructor(true));
         Assertions.assertNotNull(t);
     }
 
     @Test
     void shouldConstructRecordThatHasExtraMethod() {
-        var t = new RecordLens<>(new RecordWithExtraMethod(1));
+        var t = new RecordTransformer<>(new RecordWithExtraMethod(1));
         Assertions.assertNotNull(t);
     }
 
     @Test
     void shouldTransformRecord() {
-        var t = new RecordLens<>(new ExampleRec(1, "foo"));
+        var t = new RecordTransformer<>(new ExampleRec(1, "foo"));
         ExampleRec actual = t.with(t.rec()::a).as(2)
             .transform()
             .rec();
@@ -104,7 +104,7 @@ class RecordLensTest {
 
     @Test
     void shouldTransformRecordFromAnotherPackage() {
-        var t = new RecordLens<>(new ForeignRecord(1, "foo"));
+        var t = new RecordTransformer<>(new ForeignRecord(1, "foo"));
         ForeignRecord actual = t.with(t.rec()::a).as(2)
             .transform()
             .rec();
@@ -121,7 +121,7 @@ class RecordLensTest {
 
     @Test
     void shouldTransformRecordWithNonCanonicalConstructor() {
-        var t = new RecordLens<>(new RecordWithNonCanonicalConstructor(1));
+        var t = new RecordTransformer<>(new RecordWithNonCanonicalConstructor(1));
         RecordWithNonCanonicalConstructor actual = t.with(t.rec()::a).as(2)
             .transform()
             .rec();
@@ -138,7 +138,7 @@ class RecordLensTest {
 
     @Test
     void shouldTransformRecordWithExtraMethod() {
-        var t = new RecordLens<>(new RecordWithExtraMethod(1));
+        var t = new RecordTransformer<>(new RecordWithExtraMethod(1));
         RecordWithExtraMethod actual = t.with(t.rec()::a).as(2)
             .transform()
             .rec();
@@ -157,7 +157,7 @@ class RecordLensTest {
     void shouldTransformRecordWithNonSerializableField() {
         // Non-serializable fields should not impact the wrapper because nothing actually gets serialized
         // We just use serializable lambda to get method names
-        var t = new RecordLens<>(new RecordWithNonSerializableField(1, new NonSerializable("foo")));
+        var t = new RecordTransformer<>(new RecordWithNonSerializableField(1, new NonSerializable("foo")));
         RecordWithNonSerializableField actual = t.with(t.rec()::a).as(2)
             .transform()
             .rec();
@@ -174,7 +174,7 @@ class RecordLensTest {
 
     @Test
     void shouldExplode() {
-        var t = new RecordLens<>(new ExplodingRecord(1, "foo"));
+        var t = new RecordTransformer<>(new ExplodingRecord(1, "foo"));
         Assertions.assertThrows(GetterException.class, t::transform);
     }
 
@@ -183,7 +183,7 @@ class RecordLensTest {
         // This is a really janky test. RecordWithConstructorThatSometimesExplodes will throw a RTE if
         // set to true. We make the first record with it set to false, then transform to true
         // to get the exception and verify that it is captured correctly.
-        var t = new RecordLens<>(new RecordWithConstructorThatSometimesExplodes(false));
+        var t = new RecordTransformer<>(new RecordWithConstructorThatSometimesExplodes(false));
         t.with(t.rec()::explode).as(true);
         Assertions.assertThrows(ConstructorException.class, t::transform);
     }
