@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  */
 public class RecordTransformer<T extends Record> {
     private T rec;
-    private final Map<String, Function<T, Object>> getters;
+    protected Map<String, Function<T, Object>> getters;
     private final Map<String, Object> updates = new HashMap<>();
 
     /**
@@ -30,7 +30,11 @@ public class RecordTransformer<T extends Record> {
         this.rec = rec;
         // create a list of getters that accept a T and produce the relevant field value
         // these are used to get old values in transform
-        getters = Arrays.stream(rec.getClass().getRecordComponents())
+        getters = createGetters(rec);
+    }
+
+    protected Map<String, Function<T, Object>> createGetters(T rec) {
+        return Arrays.stream(rec.getClass().getRecordComponents())
             .map(RecordComponent::getAccessor)
             .collect(Collectors.toMap(
                 Method::getName,

@@ -67,4 +67,25 @@ public class RecordTransformerBenchmark {
         }
 
     }
+
+    @Benchmark
+    public void safeCachedTransform() {
+        LargeRecord start = new LargeRecord(1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
+        RecordTransformer<LargeRecord> lens = new CachedRecordTransformer<>(start);
+        for (int i = 0; i < ITERATIONS; i++) {
+            lens = lens
+                .with(lens.rec()::a).as(i)
+                .with(lens.rec()::b).as(i)
+                .with(lens.rec()::c).as(i)
+                .with(lens.rec()::d).as(i)
+                .with(lens.rec()::e).as(i)
+                .with(lens.rec()::f).as(i)
+                .with(lens.rec()::g).as(i)
+                .with(lens.rec()::h).as(i)
+                .with(lens.rec()::i).as(i)
+                .with(lens.rec()::j).as(i)
+                .transform();
+        }
+
+    }
 }
